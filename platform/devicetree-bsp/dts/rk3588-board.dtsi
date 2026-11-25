@@ -1,0 +1,33 @@
+/*
+ * devicetree-bsp —— RK3588 设备树与 BSP
+ * 对应文档: ../04-rk3588/rk3588-12-设备树与BSP.md
+ * 职责: 板级设备树片段（结构约定），说明 dtsi/dts/dtbo 分层。
+ *
+ * 分层结构：
+ *   rk3588.dtsi        (SoC 级：控制器/时钟/中断)
+ *   rk3588-board.dts   (板级：具体外设/引脚/使能)
+ *   rk3588-board.dtbo  (覆盖层：运行时配置)
+ */
+
+/ {
+    /* ---- 板级外设节点示例（结构约定，非完整实现） ---- */
+    aliases {
+        serial0 = &uart0;
+        mmc0 = &emmc;
+    };
+
+    /* 使能与引脚配置在各子节点中通过 pinctrl 声明 */
+};
+
+/* ---- UART 节点示例（compatible 绑定驱动） ----
+&uart0 {
+    status = "okay";
+    pinctrl-names = "default";
+    pinctrl-0 = <&uart0_xfer>;
+};
+*/
+
+/* ---- 引用 SoC 级定义的控制器（由 rk3588.dtsi 提供） ----
+ * 控制器定义时钟（clocks）、中断（interrupts）、寄存器基址（reg）。
+ * 板级 dts 只做使能（status）与引脚（pinctrl）绑定。
+ */
