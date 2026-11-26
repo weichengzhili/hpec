@@ -9,3 +9,4 @@
 | [内存管理与内存池](memory-pool/内存管理与内存池.md) | 固定块内存池，O(1) 分配 | include/memory_pool.h |
 | [内存池与定制分配器](allocator/内存池与定制分配器.md) | C++ Allocator、STL 容器接入 | include/memory_pool.hpp |
 | [所有权借用与内存安全](ownership/所有权借用与内存安全.md) | Rust 所有权、借用、原子 | src/lib.rs |
+| [资源调度](resource-scheduling/资源调度.md) | 内存资源配额、优先级准入、预留、回收与隔离 | include/resource_scheduler.h |
