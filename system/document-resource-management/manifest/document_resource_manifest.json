@@ -1,0 +1,606 @@
+{
+  "schema_version": "1.0.0",
+  "module": "system/document-resource-management",
+  "purpose": "将软硬件交互入口与硬件系统工程问题作为系统文档资源进行分级治理。",
+  "priority_model": [
+    {
+      "id": "P0",
+      "name": "架构基石",
+      "rule": "不解决会导致系统不可启动、不可控、数据损坏、安全失效或不可恢复故障。",
+      "change_control": "architecture-review-required"
+    },
+    {
+      "id": "P1",
+      "name": "系统闭环",
+      "rule": "不解决会导致系统可运行但不可验证、不可诊断、不可实时保证或不可维护。",
+      "change_control": "impact-analysis-required"
+    },
+    {
+      "id": "P2",
+      "name": "工程效率",
+      "rule": "不解决不会立即造成系统错误，但会显著降低开发、评审和量产维护效率。",
+      "change_control": "owner-review"
+    },
+    {
+      "id": "P3",
+      "name": "优化增强",
+      "rule": "用于性能、成本、功耗、体验层面的进一步优化。",
+      "change_control": "owner-maintained"
+    }
+  ],
+  "lifecycle": [
+    "draft",
+    "review",
+    "approved",
+    "baseline",
+    "frozen",
+    "deprecated",
+    "archived"
+  ],
+  "required_fields": [
+    "id",
+    "title",
+    "priority",
+    "category",
+    "status",
+    "owner",
+    "source_of_truth",
+    "path",
+    "questions",
+    "outputs",
+    "consumers",
+    "validation",
+    "security_level"
+  ],
+  "resources": [
+    {
+      "id": "DOC-SYS-000",
+      "title": "文档资源治理规则",
+      "priority": "P0",
+      "category": "契约",
+      "status": "baseline",
+      "owner": "architecture-board",
+      "source_of_truth": "system/document-resource-management/manifest/document_resource_manifest.json",
+      "path": "system/document-resource-management/文档资源管理.md",
+      "questions": [
+        "文档如何编号、分级、评审、变更和归档？",
+        "谁是每条文档资源的 owner？",
+        "什么内容必须指定单一数据源？"
+      ],
+      "outputs": [
+        "资源元模型",
+        "生命周期状态机",
+        "优先级变更规则"
+      ],
+      "consumers": [
+        "system/*"
+      ],
+      "validation": [
+        "schema-validation",
+        "id-uniqueness-check",
+        "status-machine-check"
+      ],
+      "security_level": "internal"
+    },
+    {
+      "id": "DOC-HWIF-001",
+      "title": "上电复位与启动入口",
+      "priority": "P0",
+      "category": "契约",
+      "status": "draft",
+      "owner": "boot-owner",
+      "source_of_truth": "boot/startup",
+      "path": "boot/startup/链接脚本与启动流程.md",
+      "questions": [
+        "复位源、启动介质、复位向量和启动失败如何定义？",
+        "栈、.data、.bss 和多核启动顺序如何保证？"
+      ],
+      "outputs": [
+        "复位流程图",
+        "启动时序图",
+        "启动失败处理矩阵"
+      ],
+      "consumers": [
+        "boot/startup",
+        "platform/soc-arch"
+      ],
+      "validation": [
+        "startup-log-check",
+        "reset-reason-test",
+        "smoke-test"
+      ],
+      "security_level": "internal"
+    },
+    {
+      "id": "DOC-HWIF-002",
+      "title": "时钟、电源与复位域",
+      "priority": "P0",
+      "category": "契约",
+      "status": "draft",
+      "owner": "platform-owner",
+      "source_of_truth": "platform/clock-power",
+      "path": "platform/clock-power",
+      "questions": [
+        "时钟树、PLL lock、电源域和上掉电顺序如何定义？",
+        "低功耗唤醒后哪些状态丢失，如何恢复？"
+      ],
+      "outputs": [
+        "时钟树",
+        "电源域图",
+        "唤醒恢复清单"
+      ],
+      "consumers": [
+        "platform/clock-power",
+        "boot/startup",
+        "driver/*"
+      ],
+      "validation": [
+        "clock-tree-review",
+        "power-sequence-test",
+        "wakeup-test"
+      ],
+      "security_level": "internal"
+    },
+    {
+      "id": "DOC-HWIF-003",
+      "title": "地址空间与 Memory Map",
+      "priority": "P0",
+      "category": "契约",
+      "status": "draft",
+      "owner": "architecture-board",
+      "source_of_truth": "platform/soc-arch",
+      "path": "memory/memory-model/内存模型与存储布局.md",
+      "questions": [
+        "地址归属、权限、cache 属性和 DMA 可见性如何定义？",
+        "Secure 与 Non-secure 地址空间如何划分？"
+      ],
+      "outputs": [
+        "Memory Map 表",
+        "地址权限矩阵",
+        "DMA 可用内存区清单"
+      ],
+      "consumers": [
+        "memory/memory-model",
+        "driver/*",
+        "kernel/mm",
+        "platform/*"
+      ],
+      "validation": [
+        "memory-map-review",
+        "linker-script-check",
+        "mpu-mmu-config-check"
+      ],
+      "security_level": "restricted"
+    },
+    {
+      "id": "DOC-HWIF-004",
+      "title": "寄存器访问语义",
+      "priority": "P0",
+      "category": "契约",
+      "status": "draft",
+      "owner": "driver-owner",
+      "source_of_truth": "SVD/IP-XACT/YAML",
+      "path": "driver/bit-register/位操作与寄存器编程.md",
+      "questions": [
+        "字段属性、复位值、副作用和访问宽度如何定义？",
+        "哪些寄存器禁止 read-modify-write？",
+        "写顺序和屏障要求如何表达？"
+      ],
+      "outputs": [
+        "寄存器契约表",
+        "字段访问属性表",
+        "写序列规范"
+      ],
+      "consumers": [
+        "driver/bit-register",
+        "driver/pac-hal",
+        "platform/*"
+      ],
+      "validation": [
+        "register-schema-check",
+        "read-write-verify",
+        "side-effect-review"
+      ],
+      "security_level": "restricted"
+    },
+    {
+      "id": "DOC-HWIF-005",
+      "title": "中断、异常与事件入口",
+      "priority": "P0",
+      "category": "契约",
+      "status": "draft",
+      "owner": "concurrency-owner",
+      "source_of_truth": "platform/devicetree-bsp",
+      "path": "concurrency/interrupt-critical/中断安全与临界区.md",
+      "questions": [
+        "中断优先级、触发方式、清除协议和 shared IRQ 如何定义？",
+        "中断上下文允许和禁止哪些操作？",
+        "中断风暴、SError、NMI 如何处理？"
+      ],
+      "outputs": [
+        "中断资源表",
+        "中断优先级矩阵",
+        "中断延迟预算"
+      ],
+      "consumers": [
+        "concurrency/interrupt-critical",
+        "kernel/irq",
+        "driver/*"
+      ],
+      "validation": [
+        "irq-latency-test",
+        "irq-clear-protocol-test",
+        "storm-injection-test"
+      ],
+      "security_level": "restricted"
+    },
+    {
+      "id": "DOC-HWIF-006",
+      "title": "DMA、Cache 与数据所有权",
+      "priority": "P0",
+      "category": "契约",
+      "status": "draft",
+      "owner": "memory-owner",
+      "source_of_truth": "driver/dma + memory/resource-scheduling",
+      "path": "memory/resource-scheduling/资源调度.md",
+      "questions": [
+        "buffer 归属、方向和生命周期如何定义？",
+        "CPU 与 DMA 共享内存如何 clean/invalidate？",
+        "descriptor 更新顺序和 DMA 错误恢复如何保证？"
+      ],
+      "outputs": [
+        "DMA 契约",
+        "buffer 所有权状态机",
+        "cache 维护策略表"
+      ],
+      "consumers": [
+        "memory/memory-barrier",
+        "memory/resource-scheduling",
+        "driver/*"
+      ],
+      "validation": [
+        "cache-coherency-test",
+        "dma-timeout-test",
+        "buffer-ownership-audit"
+      ],
+      "security_level": "restricted"
+    },
+    {
+      "id": "DOC-HWIF-007",
+      "title": "时间、实时性与确定性",
+      "priority": "P0",
+      "category": "契约",
+      "status": "draft",
+      "owner": "realtime-owner",
+      "source_of_truth": "system requirement + kernel/realtime",
+      "path": "kernel/realtime",
+      "questions": [
+        "deadline、WCET、关中断时间和抖动如何预算？",
+        "跨时钟域和端到端延迟如何验证？"
+      ],
+      "outputs": [
+        "实时任务表",
+        "延迟预算表",
+        "时序收敛报告"
+      ],
+      "consumers": [
+        "concurrency/*",
+        "kernel/realtime",
+        "fpga/timing"
+      ],
+      "validation": [
+        "wcet-analysis",
+        "latency-measurement",
+        "sta-check"
+      ],
+      "security_level": "safety-related"
+    },
+    {
+      "id": "DOC-HWIF-008",
+      "title": "故障、可靠性与功能安全",
+      "priority": "P0",
+      "category": "契约",
+      "status": "draft",
+      "owner": "safety-owner",
+      "source_of_truth": "system safety case",
+      "path": "kernel/security",
+      "questions": [
+        "故障如何分类、检测、隔离、恢复和上报？",
+        "安全状态和 fail-safe/fail-operational 如何定义？"
+      ],
+      "outputs": [
+        "故障模式清单",
+        "FMEA 表",
+        "安全状态定义"
+      ],
+      "consumers": [
+        "kernel/security",
+        "system/automotive",
+        "system/robot"
+      ],
+      "validation": [
+        "fault-injection",
+        "watchdog-test",
+        "fmea-review"
+      ],
+      "security_level": "safety-related"
+    },
+    {
+      "id": "DOC-HWIF-009",
+      "title": "权限、安全与隔离",
+      "priority": "P0",
+      "category": "契约",
+      "status": "draft",
+      "owner": "security-owner",
+      "source_of_truth": "security architecture",
+      "path": "kernel/security",
+      "questions": [
+        "MPU/MMU、TrustZone、IOMMU 和调试口如何配置？",
+        "固件验签、防回滚和安全日志如何保证？"
+      ],
+      "outputs": [
+        "权限矩阵",
+        "威胁模型",
+        "安全边界图"
+      ],
+      "consumers": [
+        "kernel/security",
+        "foundation/misra",
+        "platform/*"
+      ],
+      "validation": [
+        "permission-audit",
+        "secure-boot-test",
+        "threat-model-review"
+      ],
+      "security_level": "restricted"
+    },
+    {
+      "id": "DOC-SYS-010",
+      "title": "可观测、调试与量产维护",
+      "priority": "P1",
+      "category": "运维",
+      "status": "draft",
+      "owner": "diagnostics-owner",
+      "source_of_truth": "diagnostics design",
+      "path": "foundation/debug-log",
+      "questions": [
+        "日志、trace、时间戳、crash dump 和计数器如何定义？",
+        "量产测试、校准数据和现场诊断如何落地？"
+      ],
+      "outputs": [
+        "trace 点位表",
+        "crash dump 格式",
+        "量产测试清单"
+      ],
+      "consumers": [
+        "foundation/debug-log",
+        "system/*"
+      ],
+      "validation": [
+        "trace-coverage-check",
+        "dump-parse-test",
+        "production-test"
+      ],
+      "security_level": "internal"
+    },
+    {
+      "id": "DOC-SYS-011",
+      "title": "单一数据源与配置管理",
+      "priority": "P1",
+      "category": "配置",
+      "status": "draft",
+      "owner": "config-owner",
+      "source_of_truth": "generated configuration",
+      "path": "platform/devicetree-bsp",
+      "questions": [
+        "寄存器、设备树、链接脚本和版本矩阵是否只有一个源头？",
+        "生成物如何校验和防止手工漂移？"
+      ],
+      "outputs": [
+        "生成源清单",
+        "配置兼容矩阵",
+        "漂移检查规则"
+      ],
+      "consumers": [
+        "platform/devicetree-bsp",
+        "driver/*",
+        "boot/startup"
+      ],
+      "validation": [
+        "generated-file-diff",
+        "config-schema-check",
+        "drift-detection"
+      ],
+      "security_level": "internal"
+    },
+    {
+      "id": "DOC-SYS-012",
+      "title": "验证与评审证据",
+      "priority": "P1",
+      "category": "验证",
+      "status": "draft",
+      "owner": "qa-owner",
+      "source_of_truth": "validation matrix",
+      "path": "system/document-resource-management/文档资源管理.md",
+      "questions": [
+        "文档是否通过 schema、链接、追溯和评审检查？",
+        "P0 变更是否有 ADR 和审批证据？"
+      ],
+      "outputs": [
+        "验证矩阵",
+        "评审记录",
+        "证据索引"
+      ],
+      "consumers": [
+        "system/document-resource-management"
+      ],
+      "validation": [
+        "ci-check",
+        "traceability-check",
+        "approval-record-check"
+      ],
+      "security_level": "internal"
+    },
+    {
+      "id": "DOC-SYS-013",
+      "title": "资源预算与容量规划",
+      "priority": "P1",
+      "category": "设计",
+      "status": "draft",
+      "owner": "architecture-board",
+      "source_of_truth": "system resource budget",
+      "path": "memory/resource-scheduling/资源调度.md",
+      "questions": [
+        "CPU、内存、中断、DMA、带宽、功耗、栈和队列是否有预算？",
+        "峰值、预留、降级和恢复策略是否明确？"
+      ],
+      "outputs": [
+        "资源预算表",
+        "容量规划表",
+        "高水位统计规则"
+      ],
+      "consumers": [
+        "memory/*",
+        "kernel/*",
+        "system/*"
+      ],
+      "validation": [
+        "budget-review",
+        "high-water-test",
+        "stress-test"
+      ],
+      "security_level": "internal"
+    },
+    {
+      "id": "DOC-SYS-014",
+      "title": "文档模板与写作规范",
+      "priority": "P2",
+      "category": "设计",
+      "status": "draft",
+      "owner": "docs-owner",
+      "source_of_truth": "README.md",
+      "path": "README.md",
+      "questions": [
+        "模块文档统一章节、术语、引用和表格风格如何维护？"
+      ],
+      "outputs": [
+        "文档模板",
+        "术语表",
+        "写作规范"
+      ],
+      "consumers": [
+        "*"
+      ],
+      "validation": [
+        "template-check",
+        "terminology-check"
+      ],
+      "security_level": "public"
+    },
+    {
+      "id": "DOC-SYS-015",
+      "title": "工具链与自动生成",
+      "priority": "P2",
+      "category": "配置",
+      "status": "draft",
+      "owner": "tools-owner",
+      "source_of_truth": "build tooling",
+      "path": "driver/pac-hal",
+      "questions": [
+        "如何从 SVD/IP-XACT/YAML 生成寄存器头、设备树片段、索引和清单？"
+      ],
+      "outputs": [
+        "生成器说明",
+        "CI 检查规则"
+      ],
+      "consumers": [
+        "driver/*",
+        "platform/*"
+      ],
+      "validation": [
+        "generator-test",
+        "deterministic-output-check"
+      ],
+      "security_level": "internal"
+    },
+    {
+      "id": "DOC-SYS-016",
+      "title": "问题复盘与知识沉淀",
+      "priority": "P2",
+      "category": "运维",
+      "status": "draft",
+      "owner": "qa-owner",
+      "source_of_truth": "issue tracker",
+      "path": "system/document-resource-management/文档资源管理.md",
+      "questions": [
+        "现场问题、设计缺陷和验证遗漏如何进入知识库并防复发？"
+      ],
+      "outputs": [
+        "复盘报告",
+        "防复发清单"
+      ],
+      "consumers": [
+        "system/*"
+      ],
+      "validation": [
+        "postmortem-review",
+        "recurrence-check"
+      ],
+      "security_level": "internal"
+    },
+    {
+      "id": "DOC-SYS-017",
+      "title": "性能、功耗与带宽调优",
+      "priority": "P3",
+      "category": "设计",
+      "status": "draft",
+      "owner": "performance-owner",
+      "source_of_truth": "benchmark report",
+      "path": "platform/clock-power",
+      "questions": [
+        "cache 分区、DMA 带宽、CPU 核隔离、DVFS 和唤醒延迟如何优化？"
+      ],
+      "outputs": [
+        "调优报告",
+        "QoS 配置说明"
+      ],
+      "consumers": [
+        "platform/*",
+        "kernel/*"
+      ],
+      "validation": [
+        "benchmark",
+        "power-measurement",
+        "bandwidth-test"
+      ],
+      "security_level": "internal"
+    },
+    {
+      "id": "DOC-SYS-018",
+      "title": "高级诊断与自动分析",
+      "priority": "P3",
+      "category": "验证",
+      "status": "draft",
+      "owner": "diagnostics-owner",
+      "source_of_truth": "telemetry model",
+      "path": "ai",
+      "questions": [
+        "trace 自动分析、异常聚类、现场遥测和预测性维护如何设计？"
+      ],
+      "outputs": [
+        "诊断规则",
+        "遥测模型"
+      ],
+      "consumers": [
+        "ai/*",
+        "system/*"
+      ],
+      "validation": [
+        "anomaly-detection-test",
+        "telemetry-validation"
+      ],
+      "security_level": "internal"
+    }
+  ]
+}
