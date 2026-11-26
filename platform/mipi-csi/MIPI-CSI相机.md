@@ -2,6 +2,15 @@
 
 > 模块目录：`workspace/platform/mipi-csi/` · 接口文件：`include/csi.h`
 
+## 0. 问题定位
+
+- **解决什么问题**：相机采集从 sensor 到 ISP 到 DDR 如何零拷贝且不丢帧。
+- **边界标准**：
+  1. 采集→ISP→DDR 全程零拷贝，buffer 所有权转移不 memcpy（硬约束）。
+  2. buffer 循环使用，DMA 完成后才归还池（硬约束）。
+  3. 丢帧/错误有计数和上报，不死等（硬约束）。
+- **系统位置**：环 5；`dma-engine` → 本模块 → `vision-pipeline`。
+
 ## 1. 模块定位与目标
 建立 RK3588 MIPI CSI 图像采集方案：传感器接入、CSI 接口、ISP 处理、V4L2 采集流水线，为视觉/AI 应用提供高质量图像输入。
 

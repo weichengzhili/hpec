@@ -2,6 +2,15 @@
 
 > 模块目录：`workspace/platform/pcie-usb-storage/` · 接口文件：`include/io.h`
 
+## 0. 问题定位
+
+- **解决什么问题**：PCIe/USB/存储的 IO 数据流如何正确传输，热插拔如何安全。
+- **边界标准**：
+  1. IO 数据 buffer 的 cache 一致性正确（硬约束）。
+  2. 传输错误/超时处理完整（硬约束）。
+  3. 热插拔/拔插生命周期安全，无 use-after-free（硬约束）。
+- **系统位置**：环 5；`dma-engine` → 本模块。
+
 ## 1. 模块定位与目标
 建立 RK3588 高速外设扩展与存储方案：PCIe 3.0（接 FPGA/NVMe/网卡）、USB 3.1、eMMC/SD/SATA 存储，支撑大带宽扩展与数据持久化。
 

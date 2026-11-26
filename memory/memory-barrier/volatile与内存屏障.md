@@ -2,6 +2,15 @@
 
 > 模块目录：`workspace/memory/memory-barrier/` · 接口文件：`include/volatile_barrier.h`
 
+## 0. 问题定位
+
+- **解决什么问题**：MMIO 访问和 DMA 共享内存如何保证正确的可见性和顺序。
+- **边界标准**：
+  1. MMIO 访问必须 `volatile` + 必要屏障，禁止被编译器优化掉（硬约束）。
+  2. DMA 共享内存的 clean/invalidate 时机明确，CPU 与设备视图一致（硬约束）。
+  3. 内存序分类（MMIO/DMA/共享变量）有规则，禁止靠猜（硬约束）。
+- **系统位置**：环 2；`memory-model` → 本模块 → `driver/bit-register`、`dma-engine`、`kernel/lock`。
+
 ## 1. 模块定位与目标
 规范硬件寄存器访问与跨执行单元（核/中断/DMA）共享数据的一致性语义，消除编译器与 CPU 乱序带来的隐蔽缺陷。是驱动与实时内核正确性的关键。
 

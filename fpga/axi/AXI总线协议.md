@@ -2,6 +2,15 @@
 
 > 模块目录：`workspace/fpga/axi/` · 接口文件：`rtl/axi_if.sv`
 
+## 0. 问题定位
+
+- **解决什么问题**：AXI 总线上的握手、突发、乱序如何正确实现。
+- **边界标准**：
+  1. 握手协议（VALID/READY）正确，无死锁（硬约束）。
+  2. 突发长度/对齐满足 AXI 规范（硬约束）。
+  3. outstanding 事务和乱序响应正确处理（硬约束）。
+- **系统位置**：环 5；`fpga/fifo`、`fpga/timing` → 本模块 → `fpga/serdes`。
+
 ## 1. 模块定位与目标
 建立 AXI 总线（AMBA）协议的设计规范：AXI4（存储器映射）、AXI4-Lite（寄存器）、AXI-Stream（流式），用于模块互连、PS-PL 通信、IP 集成，是 FPGA SoC 互连的标准。
 

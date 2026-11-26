@@ -2,6 +2,15 @@
 
 > 模块目录：`workspace/platform/dma-engine/` · 接口文件：`include/dma_engine.h`
 
+## 0. 问题定位
+
+- **解决什么问题**：DMA 通道如何正确搬运数据并处理缓存一致性和错误。
+- **边界标准**：
+  1. 传输完成前 CPU 不访问该 buffer，所有权明确（硬约束）。
+  2. cache clean（D→M）与 invalidate（M→D）时机正确（硬约束）。
+  3. DMA 错误（超时/部分传输）有检测和恢复，不死等（硬约束）。
+- **系统位置**：环 5；`memory-barrier`、`gic` → 本模块 → `mipi-csi`、`video-codec`。
+
 ## 1. 模块定位与目标
 建立 RK3588 DMA 传输方案：DMA 控制器、传输通道、缓存一致性管理，实现外设与内存间的高效数据搬移，减轻 CPU 负担，保障流媒体/网关高吞吐。
 

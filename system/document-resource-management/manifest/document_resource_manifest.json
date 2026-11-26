@@ -54,6 +54,54 @@
   ],
   "resources": [
     {
+      "id": "DOC-ARCH-001",
+      "title": "系统问题链总纲",
+      "priority": "P0",
+      "category": "契约",
+      "status": "baseline",
+      "owner": "architecture-board",
+      "source_of_truth": "系统问题链.md",
+      "path": "系统问题链.md",
+      "questions": [
+        "整个项目围绕什么因果主线展开？",
+        "每个模块挂靠问题链的哪一环，上下游是谁？"
+      ],
+      "outputs": [
+        "系统问题链.md"
+      ],
+      "consumers": [
+        "*"
+      ],
+      "validation": [
+        "module-coverage-check",
+        "chain-consistency-review"
+      ],
+      "security_level": "internal"
+    },
+    {
+      "id": "DOC-ARCH-002",
+      "title": "模块问题定义总表",
+      "priority": "P0",
+      "category": "契约",
+      "status": "baseline",
+      "owner": "architecture-board",
+      "source_of_truth": "模块问题定义.md",
+      "path": "模块问题定义.md",
+      "questions": [
+        "每个模块解决什么问题、边界标准是什么、位于哪一环？"
+      ],
+      "outputs": [
+        "模块问题定义.md"
+      ],
+      "consumers": [
+        "*"
+      ],
+      "validation": [
+        "module-coverage-check"
+      ],
+      "security_level": "internal"
+    },
+    {
       "id": "DOC-SYS-000",
       "title": "文档资源治理规则",
       "priority": "P0",

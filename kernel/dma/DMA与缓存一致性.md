@@ -2,6 +2,15 @@
 
 > 模块目录：`workspace/kernel/dma/` · 接口文件：`include/dma.h`
 
+## 0. 问题定位
+
+- **解决什么问题**：内核态 DMA buffer 的映射、cache 一致性、IOMMU 配置如何保证设备访问正确内存。
+- **边界标准**：
+  1. DMA buffer 用 DMA API 分配/映射，禁止裸物理地址（硬约束）。
+  2. streaming DMA 的 direction 与 cache 操作一致（硬约束）。
+  3. IOMMU 使设备只能访问授权内存，越权即 fault（硬约束）。
+- **系统位置**：环 2；`memory-model`、`memory-barrier` → 本模块 → `platform/dma-engine`。
+
 ## 1. 模块定位与目标
 建立内核 DMA 与缓存一致性管理方案：DMA API、一致性/流式映射、IOMMU/SMMU 保护，保证设备与 CPU 之间数据一致性，支撑高吞吐外设。
 
